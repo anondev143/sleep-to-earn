@@ -1,12 +1,19 @@
 {
   "version": 2,
-
+  "buildCommand": "yarn vercel-build",
   "builds": [
     {
       "src": "dist/main.js",
       "use": "@vercel/node"
     }
   ],
+  "functions": {
+    "dist/main.js": {
+      "includeFiles": [
+        "node_modules/.prisma/**"
+      ]
+    }
+  },
   "routes": [
     {
       "src": "/(.*)",

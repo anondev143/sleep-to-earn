@@ -23,10 +23,27 @@ let WhoopController = class WhoopController {
         await this.service.handleWebhook(signature, timestamp, body);
         return 'ok';
     }
+    async register(body) {
+        const { whoopUserId, walletAddress, accessToken, refreshToken, expiresIn } = body ?? {};
+        if (!whoopUserId || !walletAddress || !accessToken) {
+            throw new common_1.BadRequestException('whoopUserId, walletAddress and accessToken are required');
+        }
+        await this.service.registerAccount({
+            whoopUserId,
+            walletAddress,
+            accessToken,
+            refreshToken,
+            expiresInSeconds: expiresIn,
+        });
+        return { ok: true };
+    }
+    async getUser(walletAddress) {
+        return this.service.getUser(walletAddress);
+    }
 };
 exports.WhoopController = WhoopController;
 __decorate([
-    (0, common_1.Post)(),
+    (0, common_1.Post)('webhook'),
     (0, common_1.HttpCode)(200),
     __param(0, (0, common_1.Headers)('x-whoop-signature')),
     __param(1, (0, common_1.Headers)('x-whoop-signature-timestamp')),
@@ -35,8 +52,23 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], WhoopController.prototype, "handle", null);
+__decorate([
+    (0, common_1.Post)('register'),
+    (0, common_1.HttpCode)(200),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], WhoopController.prototype, "register", null);
+__decorate([
+    (0, common_1.Get)('user/:walletAddress'),
+    __param(0, (0, common_1.Param)('walletAddress')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WhoopController.prototype, "getUser", null);
 exports.WhoopController = WhoopController = __decorate([
-    (0, common_1.Controller)('api/webhooks/whoop'),
+    (0, common_1.Controller)('api/whoop'),
     __metadata("design:paramtypes", [whoop_service_1.WhoopService])
 ], WhoopController);
 //# sourceMappingURL=whoop.controller.js.map

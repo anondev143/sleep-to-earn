@@ -10,5 +10,31 @@ export declare class WhoopService {
     constructor(prisma: PrismaService);
     private computeSignature;
     handleWebhook(signature: string | undefined, timestamp: string | undefined, body: WhoopEventBody): Promise<void>;
+    registerAccount(params: {
+        whoopUserId: number;
+        walletAddress: string;
+        accessToken: string;
+        refreshToken?: string;
+        expiresInSeconds?: number;
+    }): Promise<{
+        id: string;
+        whoopUserId: number;
+        walletAddress: string;
+        createdAt: Date;
+        updatedAt: Date;
+        accessToken: string;
+        refreshToken: string | null;
+        accessTokenExpiresAt: Date | null;
+    }>;
+    getUser(walletAddress: string): Promise<{
+        id: string;
+        whoopUserId: number;
+        walletAddress: string;
+        createdAt: Date;
+        updatedAt: Date;
+        accessToken: string;
+        refreshToken: string | null;
+        accessTokenExpiresAt: Date | null;
+    } | null>;
 }
 export {};

@@ -9,5 +9,24 @@ export declare class WhoopController {
     private readonly service;
     constructor(service: WhoopService);
     handle(signature: string, timestamp: string, body: WhoopEventBody): Promise<string>;
+    register(body: {
+        whoopUserId?: number;
+        walletAddress?: string;
+        accessToken?: string;
+        refreshToken?: string;
+        expiresIn?: number;
+    }): Promise<{
+        ok: boolean;
+    }>;
+    getUser(walletAddress: string): Promise<{
+        id: string;
+        whoopUserId: number;
+        walletAddress: string;
+        createdAt: Date;
+        updatedAt: Date;
+        accessToken: string;
+        refreshToken: string | null;
+        accessTokenExpiresAt: Date | null;
+    } | null>;
 }
 export {};
