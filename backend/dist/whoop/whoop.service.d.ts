@@ -18,20 +18,20 @@ export declare class WhoopService {
         expiresInSeconds?: number;
     }): Promise<{
         id: string;
-        whoopUserId: number;
-        walletAddress: string;
         createdAt: Date;
         updatedAt: Date;
+        whoopUserId: number;
+        walletAddress: string;
         accessToken: string;
         refreshToken: string | null;
         accessTokenExpiresAt: Date | null;
     }>;
     getUser(walletAddress: string): Promise<{
         id: string;
-        whoopUserId: number;
-        walletAddress: string;
         createdAt: Date;
         updatedAt: Date;
+        whoopUserId: number;
+        walletAddress: string;
         accessToken: string;
         refreshToken: string | null;
         accessTokenExpiresAt: Date | null;
