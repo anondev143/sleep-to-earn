@@ -27,6 +27,6 @@ export declare class WhoopController {
         accessToken: string;
         refreshToken: string | null;
         accessTokenExpiresAt: Date | null;
-    } | null>;
+    }>;
 }
 export {};

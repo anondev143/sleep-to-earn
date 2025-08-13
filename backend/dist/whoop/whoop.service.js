@@ -76,14 +76,11 @@ let WhoopService = class WhoopService {
         });
     }
     async getUser(walletAddress) {
-        try {
-            const user = await this.prisma.whoopAccount.findUnique({ where: { walletAddress: walletAddress } });
-            return user;
+        const user = await this.prisma.whoopAccount.findUnique({ where: { walletAddress: walletAddress } });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
         }
-        catch (e) {
-            console.error(e);
-            return null;
-        }
+        return user;
     }
 };
 exports.WhoopService = WhoopService;

@@ -82,13 +82,11 @@ export class WhoopService {
   }
 
   async getUser(walletAddress: string) {
-    try {
       const user = await this.prisma.whoopAccount.findUnique({ where: { walletAddress: walletAddress } });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       return user;
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
   }
 }
 

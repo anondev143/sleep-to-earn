@@ -35,6 +35,6 @@ export declare class WhoopService {
         accessToken: string;
         refreshToken: string | null;
         accessTokenExpiresAt: Date | null;
-    } | null>;
+    }>;
 }
 export {};
