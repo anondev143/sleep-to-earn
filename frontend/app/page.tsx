@@ -19,6 +19,8 @@ export default function SleepToEarnApp() {
 
   const [frameAdded, setFrameAdded] = useState(false);
   const [isLoading] = useState(false);
+  const [isWhoopConnected, setIsWhoopConnected] = useState<boolean | null>(null);
+  const [isCheckingWhoop, setIsCheckingWhoop] = useState(false);
 
   useEffect(() => {
     if (!isFrameReady) setFrameReady();
@@ -28,6 +30,33 @@ export default function SleepToEarnApp() {
   useEffect(() => {
     void context?.user?.fid;
   }, [context?.user?.fid]);
+
+  const checkUserRegistration = useCallback(async () => {
+    try {
+      if (localStorage.getItem("whoop:" + address)) {
+        setIsWhoopConnected(true);
+        return;
+      }
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backendUrl) return false;
+      const res = await fetch(`${backendUrl}/api/whoop/user/${address}`);
+      
+      if (res.ok) {
+        setIsWhoopConnected(true);
+        setIsCheckingWhoop(false);
+        localStorage.setItem("whoop:" + address, "true");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    if (address) {
+      checkUserRegistration();
+    }
+  }, [address, checkUserRegistration]);
 
   const handleAddFrame = useCallback(async () => {
     const added = await addFrame();
@@ -87,22 +116,41 @@ export default function SleepToEarnApp() {
           <div className="rounded-lg border p-4 space-y-2">
             <div className="text-3xl font-bold">Sleep events synced via WHOOP</div>
             <div className="text-sm">Webhook-driven updates</div>
+            <div className="text-sm">
+              WHOOP status: {isCheckingWhoop ? 'Checking…' : (isWhoopConnected ? 'Connected' : (address ? 'Not connected' : 'No wallet'))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-2 text-sm text-[var(--ock-text-foreground-muted)]">
             Configure WHOOP webhook URL to point to backend `/api/webhooks/whoop`.
           </div>
 
-          <a
-            className="w-full inline-block text-center bg-black text-white rounded p-3 disabled:bg-gray-400"
-            href={address ? `/api/whoop/connect?wallet=${address}` : undefined}
-            aria-disabled={!address}
-            onClick={(e) => {
-              if (!address) e.preventDefault();
-            }}
-          >
-            {address ? "Connect WHOOP" : "Connect wallet first"}
-          </a>
+          {address ? (
+            isWhoopConnected ? (
+              <div className="w-full inline-block text-center bg-green-600 text-white rounded p-3">
+                WHOOP Connected
+              </div>
+            ) : (
+              <a
+                className="w-full inline-block text-center bg-black text-white rounded p-3 disabled:bg-gray-400"
+                href={`/api/whoop/connect?wallet=${address}`}
+                aria-disabled={isCheckingWhoop}
+                onClick={(e) => {
+                  if (isCheckingWhoop) e.preventDefault();
+                }}
+              >
+                {isCheckingWhoop ? 'Preparing…' : 'Connect WHOOP'}
+              </a>
+            )
+          ) : (
+            <a
+              className="w-full inline-block text-center bg-black text-white rounded p-3 disabled:bg-gray-400"
+              aria-disabled
+              onClick={(e) => e.preventDefault()}
+            >
+              Connect wallet first
+            </a>
+          )}
 
           <button
             className="w-full bg-blue-600 text-white rounded p-3 disabled:bg-gray-400"
