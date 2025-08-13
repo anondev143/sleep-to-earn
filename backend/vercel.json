@@ -7,13 +7,6 @@
       "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "dist/main.js": {
-      "includeFiles": [
-        "node_modules/.prisma/**"
-      ]
-    }
-  },
   "routes": [
     {
       "src": "/(.*)",
