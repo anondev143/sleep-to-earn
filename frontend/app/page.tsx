@@ -41,9 +41,8 @@ export default function SleepToEarnApp() {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       if (!backendUrl) return false;
       const res = await fetch(`${backendUrl}/api/whoop/user/${address}`);
-      
       if (res.ok) {
-        setIsWhoopConnected(true);
+        setIsWhoopConnected(true);  
         setIsCheckingWhoop(false);
         localStorage.setItem("whoop:" + address, "true");
       }

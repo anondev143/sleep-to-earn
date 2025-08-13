@@ -48,23 +48,24 @@ export async function GET(req: Request) {
     body,
   });
 
+
   if (!tokenRes.ok) {
     const text = await tokenRes.text();
     return new NextResponse(`Token exchange failed: ${text}`, { status: 502 });
   }
-
   const tokenJson = (await tokenRes.json()) as {
     access_token: string;
-    refresh_token?: string;
-    expires_in?: number;
-    token_type?: string;
+    scope: string;
+    expires_in: number;
+    token_type: string;
   };
 
   // Optionally fetch basic profile to get the WHOOP user id
-  const profileRes = await fetch(new URL("/v2/user/profile/basic", whoopHost).toString(), {
+  const profileRes = await fetch(new URL("/developer/v2/user/profile/basic", whoopHost).toString(), {
     headers: { Authorization: `Bearer ${tokenJson.access_token}` },
     cache: "no-store",
   });
+
 
   let whoopUserId: number | undefined;
   if (profileRes.ok) {
@@ -72,6 +73,7 @@ export async function GET(req: Request) {
     whoopUserId = profile.user_id;
   }
 
+ 
   // Call backend to register the user with tokens (simple POST; adjust path if needed)
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (backendUrl) {
@@ -82,7 +84,6 @@ export async function GET(req: Request) {
       body: JSON.stringify({
         whoopUserId,
         accessToken: tokenJson.access_token,
-        refreshToken: tokenJson.refresh_token,
         expiresIn: tokenJson.expires_in,
         walletAddress: wallet,
       }),
