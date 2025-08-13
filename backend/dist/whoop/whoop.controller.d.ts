@@ -20,10 +20,10 @@ export declare class WhoopController {
     }>;
     getUser(walletAddress: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         whoopUserId: number;
         walletAddress: string;
+        createdAt: Date;
+        updatedAt: Date;
         accessToken: string;
         refreshToken: string | null;
         accessTokenExpiresAt: Date | null;
