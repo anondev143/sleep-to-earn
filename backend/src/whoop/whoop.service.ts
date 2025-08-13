@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -48,6 +48,46 @@ export class WhoopService {
       });
     } else if (action === 'deleted') {
       await this.prisma.whoopResource.deleteMany({ where: { userId: body.user_id, resourceId: String(body.id), domain } });
+    }
+  }
+
+  async registerAccount(params: {
+    whoopUserId: number;
+    walletAddress: string;
+    accessToken: string;
+    refreshToken?: string;
+    expiresInSeconds?: number;
+  }) {
+    const { whoopUserId, walletAddress, accessToken, refreshToken, expiresInSeconds } = params;
+    const expiresAt = expiresInSeconds
+      ? new Date(Date.now() + expiresInSeconds * 1000)
+      : null;
+
+    return this.prisma.whoopAccount.upsert({
+      where: { whoopUserId },
+      create: {
+        whoopUserId,
+        walletAddress: walletAddress,
+        accessToken,
+        refreshToken: refreshToken ?? null,
+        accessTokenExpiresAt: expiresAt,
+      },
+      update: {
+        walletAddress: walletAddress,
+        accessToken,
+        refreshToken: refreshToken ?? null,
+        accessTokenExpiresAt: expiresAt,
+      },
+    });
+  }
+
+  async getUser(walletAddress: string) {
+    try {
+      const user = await this.prisma.whoopAccount.findUnique({ where: { walletAddress: walletAddress } });
+      return user;
+    } catch (e) {
+      console.error(e);
+      return null;
     }
   }
 }

@@ -76,6 +76,25 @@ npm run dev
 
 - WHOOP events are handled in the backend service under `backend/app/api/webhooks/whoop`
 
+### WHOOP OAuth (Frontend)
+
+- Add these environment variables to enable WHOOP connect flow:
+
+```
+WHOOP_API_HOSTNAME=https://api.prod.whoop.com
+WHOOP_CLIENT_ID=
+WHOOP_CLIENT_SECRET=
+WHOOP_OAUTH_SCOPE=offline read:profile read:sleep read:recovery
+NEXT_PUBLIC_URL=https://your-frontend-url
+NEXT_PUBLIC_BACKEND_URL=https://your-backend-url
+```
+
+- Endpoints added:
+  - `GET /api/whoop/connect` → Redirects to WHOOP OAuth
+  - `GET /api/whoop/callback` → Validates state, exchanges code, fetches profile, posts to backend `/api/whoop/register`
+
+Note: Implement `POST /api/whoop/register` in the backend to persist tokens and associate `whoopUserId`. The existing backend already receives webhooks at `/api/webhooks/whoop`.
+
 ### Theming
 
 - Custom theme defined in `theme.css` with OnchainKit variables

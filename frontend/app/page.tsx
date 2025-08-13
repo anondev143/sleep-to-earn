@@ -9,11 +9,13 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAccount } from "wagmi";
 
 export default function SleepToEarnApp() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
+  const { address } = useAccount();
 
   const [frameAdded, setFrameAdded] = useState(false);
   const [isLoading] = useState(false);
@@ -90,6 +92,17 @@ export default function SleepToEarnApp() {
           <div className="grid grid-cols-1 gap-2 text-sm text-[var(--ock-text-foreground-muted)]">
             Configure WHOOP webhook URL to point to backend `/api/webhooks/whoop`.
           </div>
+
+          <a
+            className="w-full inline-block text-center bg-black text-white rounded p-3 disabled:bg-gray-400"
+            href={address ? `/api/whoop/connect?wallet=${address}` : undefined}
+            aria-disabled={!address}
+            onClick={(e) => {
+              if (!address) e.preventDefault();
+            }}
+          >
+            {address ? "Connect WHOOP" : "Connect wallet first"}
+          </a>
 
           <button
             className="w-full bg-blue-600 text-white rounded p-3 disabled:bg-gray-400"

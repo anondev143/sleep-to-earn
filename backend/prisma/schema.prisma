@@ -30,4 +30,16 @@ model WhoopResource {
   @@unique([userId, resourceId, domain], name: "userId_resource_domain")
 }
 
+model WhoopAccount {
+  id                    String   @id @default(cuid())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  whoopUserId           Int      @unique
+  walletAddress         String   @unique
+  accessToken           String
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+}
+
+
 
