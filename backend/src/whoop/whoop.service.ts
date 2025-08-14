@@ -213,6 +213,15 @@ export class WhoopService {
       }
       return user;
   }
+
+  async getUserSleep(walletAddress: string, date: string) {
+    const user = await this.getUser(walletAddress);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const sleep = await this.prisma.whoopSleep.findFirst({ where: { userId: user.whoopUserId, start: { gte: new Date(date) } } });
+    return sleep?.raw;
+  }
 }
 
 

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Headers, HttpCode, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, HttpCode, Param, Post, Query } from '@nestjs/common';
 import { WhoopService } from './whoop.service';
 
 type WhoopEventBody = {
@@ -52,6 +52,11 @@ export class WhoopController {
   @Get('user/:walletAddress')
   async getUser(@Param('walletAddress') walletAddress: string) {
     return this.service.getUser(walletAddress);
+  }
+
+  @Get('sleep/:walletAddress')
+  async getUserSleep(@Param('walletAddress') walletAddress: string, @Query('date') date: string) {
+    return this.service.getUserSleep(walletAddress, date);
   }
 }
 
