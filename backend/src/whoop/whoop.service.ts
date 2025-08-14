@@ -58,6 +58,7 @@ export class WhoopService {
   private async fetchAndStoreSleep(userId: number, sleepId: string) {
     try {
       const account = await this.prisma.whoopAccount.findUnique({ where: { whoopUserId: userId } });
+      console.log(account);
       if (!account) return; // user not registered with us
 
       const url = `https://api.prod.whoop.com/developer/v2/activity/sleep/${sleepId}`;
@@ -67,8 +68,11 @@ export class WhoopService {
           Accept: 'application/json',
         },
       });
+      console.log(res);
       if (!res.ok) return;
       const data = await res.json();
+
+      console.log(data);
 
       const start = data?.start ? new Date(data.start) : null;
       const end = data?.end ? new Date(data.end) : null;
@@ -90,7 +94,7 @@ export class WhoopService {
         },
       });
     } catch (error) {
-      console.error('Error fetching and storing sleep data', error);
+      console.log(error);
     }
   }
 
