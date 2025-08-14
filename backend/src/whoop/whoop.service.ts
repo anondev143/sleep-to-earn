@@ -46,8 +46,51 @@ export class WhoopService {
         update: { updatedAt: new Date() },
         create: { userId: body.user_id, resourceId: String(body.id), domain },
       });
+
+      if (domain === 'sleep') {
+        await this.fetchAndStoreSleep(body.user_id, String(body.id));
+      }
     } else if (action === 'deleted') {
       await this.prisma.whoopResource.deleteMany({ where: { userId: body.user_id, resourceId: String(body.id), domain } });
+    }
+  }
+
+  private async fetchAndStoreSleep(userId: number, sleepId: string) {
+    try {
+      const account = await this.prisma.whoopAccount.findUnique({ where: { whoopUserId: userId } });
+      if (!account) return; // user not registered with us
+
+      const url = `https://api.prod.whoop.com/developer/v2/activity/sleep/${sleepId}`;
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${account.accessToken}`,
+          Accept: 'application/json',
+        },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const start = data?.start ? new Date(data.start) : null;
+      const end = data?.end ? new Date(data.end) : null;
+
+      await this.prisma.whoopSleep.upsert({
+        where: { sleepId: sleepId },
+        update: {
+          userId: userId,
+          start: start ?? undefined,
+          end: end ?? undefined,
+          raw: data,
+        },
+        create: {
+          userId: userId,
+          sleepId: sleepId,
+          start: start ?? undefined,
+          end: end ?? undefined,
+          raw: data,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching and storing sleep data', error);
     }
   }
 

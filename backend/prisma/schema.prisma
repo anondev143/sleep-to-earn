@@ -41,5 +41,16 @@ model WhoopAccount {
   accessTokenExpiresAt  DateTime?
 }
 
+model WhoopSleep {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       Int
+  sleepId      String   @unique
+  start        DateTime?
+  end          DateTime?
+  raw          Json
+}
+
 
 
