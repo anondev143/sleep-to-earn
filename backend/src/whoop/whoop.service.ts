@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { WhoopAccount } from '@prisma/client';
 import crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -58,21 +59,34 @@ export class WhoopService {
   private async fetchAndStoreSleep(userId: number, sleepId: string) {
     try {
       const account = await this.prisma.whoopAccount.findUnique({ where: { whoopUserId: userId } });
-      console.log(account);
       if (!account) return; // user not registered with us
 
+      // Ensure we have a valid access token (refresh if expired/near expiry)
+      const tokenHolder = await this.ensureValidAccessToken(account);
+
       const url = `https://api.prod.whoop.com/developer/v2/activity/sleep/${sleepId}`;
-      const res = await fetch(url, {
+      let res = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${account.accessToken}`,
+          Authorization: `Bearer ${tokenHolder.accessToken}`,
           Accept: 'application/json',
         },
       });
-      console.log(res);
+
+      // If token was invalid (e.g., expired unexpectedly), try one refresh-and-retry
+      if (res.status === 401) {
+        const refreshed = await this.tryRefreshAndPersist(account.whoopUserId);
+        if (refreshed) {
+          res = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${refreshed.accessToken}`,
+              Accept: 'application/json',
+            },
+          });
+        }
+      }
+
       if (!res.ok) return;
       const data = await res.json();
-
-      console.log(data);
 
       const start = data?.start ? new Date(data.start) : null;
       const end = data?.end ? new Date(data.end) : null;
@@ -96,6 +110,70 @@ export class WhoopService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  private isTokenExpiringSoon(expiresAt: Date | null | undefined, bufferSeconds = 60): boolean {
+    if (!expiresAt) return false;
+    return Date.now() + bufferSeconds * 1000 >= new Date(expiresAt).getTime();
+  }
+
+  private async ensureValidAccessToken(account: WhoopAccount): Promise<{ accessToken: string }>
+  {
+    if (this.isTokenExpiringSoon(account.accessTokenExpiresAt)) {
+      const refreshed = await this.tryRefreshAndPersist(account.whoopUserId);
+      if (refreshed) return { accessToken: refreshed.accessToken };
+    }
+    return { accessToken: account.accessToken };
+  }
+
+  private async tryRefreshAndPersist(whoopUserId: number): Promise<WhoopAccount | null> {
+    const acc = await this.prisma.whoopAccount.findUnique({ where: { whoopUserId } });
+    if (!acc || !acc.refreshToken) return null;
+
+    const clientId = process.env.WHOOP_CLIENT_ID;
+    const clientSecret = process.env.WHOOP_CLIENT_SECRET;
+    const whoopHost = process.env.WHOOP_API_HOSTNAME ?? 'https://api.prod.whoop.com';
+    if (!clientId || !clientSecret) return null;
+
+    const tokenUrl = new URL('/oauth/oauth2/token', whoopHost).toString();
+    const scope = "offline read:profile read:sleep read:recovery";
+    const form = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: acc.refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: scope,
+    });
+
+    const res = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    });
+    if (!res.ok) return null;
+
+    const json = (await res.json()) as {
+      access_token: string;
+      refresh_token?: string;
+      expires_in?: number;
+      token_type?: string;
+      scope?: string;
+    };
+
+    const newExpiresAt = json.expires_in ? new Date(Date.now() + json.expires_in * 1000) : null;
+
+    const updated = await this.prisma.whoopAccount.update({
+      where: { whoopUserId },
+      data: {
+        accessToken: json.access_token,
+        refreshToken: json.refresh_token ?? acc.refreshToken,
+        accessTokenExpiresAt: newExpiresAt,
+      },
+    });
+
+    console.log("token refreshed");
+
+    return updated;
   }
 
   async registerAccount(params: {

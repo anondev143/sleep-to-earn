@@ -55,6 +55,7 @@ export async function GET(req: Request) {
   }
   const tokenJson = (await tokenRes.json()) as {
     access_token: string;
+    refresh_token?: string;
     scope: string;
     expires_in: number;
     token_type: string;
@@ -73,6 +74,7 @@ export async function GET(req: Request) {
     whoopUserId = profile.user_id;
   }
 
+
  
   // Call backend to register the user with tokens (simple POST; adjust path if needed)
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -84,10 +86,11 @@ export async function GET(req: Request) {
       body: JSON.stringify({
         whoopUserId,
         accessToken: tokenJson.access_token,
+        refreshToken: tokenJson.refresh_token,
         expiresIn: tokenJson.expires_in,
         walletAddress: wallet,
       }),
-    }).catch(() => undefined);
+    }).catch((e) => console.error(e));
   }
 
   // Redirect back to app home after connect

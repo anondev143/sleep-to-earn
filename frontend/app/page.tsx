@@ -112,18 +112,6 @@ export default function SleepToEarnApp() {
           <h1 className="text-xl font-semibold">SleepToEarn</h1>
           <p className="text-sm text-[var(--ock-text-foreground-muted)]">Connect your WHOOP and sleep to earn</p>
 
-          <div className="rounded-lg border p-4 space-y-2">
-            <div className="text-3xl font-bold">Sleep events synced via WHOOP</div>
-            <div className="text-sm">Webhook-driven updates</div>
-            <div className="text-sm">
-              WHOOP status: {isCheckingWhoop ? 'Checking…' : (isWhoopConnected ? 'Connected' : (address ? 'Not connected' : 'No wallet'))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2 text-sm text-[var(--ock-text-foreground-muted)]">
-            Configure WHOOP webhook URL to point to backend `/api/webhooks/whoop`.
-          </div>
-
           {address ? (
             isWhoopConnected ? (
               <div className="w-full inline-block text-center bg-green-600 text-white rounded p-3">

@@ -81,12 +81,10 @@ npm run dev
 - Add these environment variables to enable WHOOP connect flow:
 
 ```
-WHOOP_API_HOSTNAME=https://api.prod.whoop.com
 WHOOP_CLIENT_ID=
 WHOOP_CLIENT_SECRET=
-WHOOP_OAUTH_SCOPE=offline read:profile read:sleep read:recovery
-NEXT_PUBLIC_URL=https://your-frontend-url
-NEXT_PUBLIC_BACKEND_URL=https://your-backend-url
+NEXT_PUBLIC_URL=
+NEXT_PUBLIC_BACKEND_URL=
 ```
 
 - Endpoints added:

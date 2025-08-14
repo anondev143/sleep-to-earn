@@ -5,8 +5,8 @@ export async function GET(req: Request) {
   const clientId = process.env.WHOOP_CLIENT_ID;
   const appUrl = process.env.NEXT_PUBLIC_URL;
   const redirectUri = appUrl ? `${appUrl}/api/whoop/callback` : undefined;
-  const scope = process.env.WHOOP_OAUTH_SCOPE ?? "offline read:profile read:sleep read:recovery";
-  const whoopHost = process.env.WHOOP_API_HOSTNAME ?? "https://api.prod.whoop.com";
+  const scope = "offline read:profile read:sleep read:recovery";
+  const whoopHost = "https://api.prod.whoop.com";
 
   if (!clientId || !redirectUri) {
     return new NextResponse("WHOOP OAuth not configured", { status: 500 });
