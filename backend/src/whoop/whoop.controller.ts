@@ -55,8 +55,13 @@ export class WhoopController {
   }
 
   @Get('sleep/:walletAddress')
-  async getUserSleep(@Param('walletAddress') walletAddress: string, @Query('date') date: string) {
-    return this.service.getUserSleep(walletAddress, date);
+  async getUserSleep(@Param('walletAddress') walletAddress: string) {
+    return this.service.getUserSleep(walletAddress);
+  }
+
+  @Get('stats/:walletAddress')
+  async getUserStats(@Param('walletAddress') walletAddress: string) {
+    return this.service.getUserBlockchainStats(walletAddress);
   }
 }
 

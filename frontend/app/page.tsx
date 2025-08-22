@@ -10,6 +10,8 @@ import {
 } from "@coinbase/onchainkit/wallet";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import SleepCard from "./components/SleepCard";
+import RewardsCard from "./components/RewardsCard";
+import Leaderboard from "./components/Leaderboard";
 import { useAccount } from "wagmi";
 
 export default function SleepToEarnApp() {
@@ -19,18 +21,9 @@ export default function SleepToEarnApp() {
   const { address } = useAccount();
 
   const [frameAdded, setFrameAdded] = useState(false);
-  const [isLoading] = useState(false);
   const [isWhoopConnected, setIsWhoopConnected] = useState<boolean | null>(null);
   const [isCheckingWhoop, setIsCheckingWhoop] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const d = new Date();
-    // Default to previous day if before noon, to reflect "last night's" sleep
-    if (d.getHours() < 12) d.setDate(d.getDate() - 1);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
-  });
+  const [activeTab, setActiveTab] = useState<'sleep' | 'rewards' | 'leaderboard'>('sleep');
   const [sleepData, setSleepData] = useState<unknown | null>(null);
   const [sleepLoading, setSleepLoading] = useState(false);
   const [sleepError, setSleepError] = useState<string | null>(null);
@@ -92,9 +85,6 @@ export default function SleepToEarnApp() {
     return null;
   }, [context, frameAdded, handleAddFrame]);
 
-  const handleClaim = async () => {
-    alert("Claim logic will be triggered after WHOOP sleep is verified.");
-  };
 
   const fetchSleep = useCallback(async () => {
     try {
@@ -104,8 +94,8 @@ export default function SleepToEarnApp() {
       setSleepLoading(true);
       setSleepError(null);
       setSleepData(null);
-      const res = await fetch(`${backendUrl}/api/whoop/sleep/${address}?date=${encodeURIComponent(selectedDate)}`, {
-        cache: "no-store",
+      const res = await fetch(`${backendUrl}/api/whoop/sleep/${address}`, {
+        cache: "no-store",  
       });
       if (!res.ok) {
         const text = await res.text();
@@ -120,13 +110,13 @@ export default function SleepToEarnApp() {
     } finally {
       setSleepLoading(false);
     }
-  }, [address, selectedDate]);
+  }, [address]);
 
   useEffect(() => {
     if (address && isWhoopConnected) {
       void fetchSleep();
     }
-  }, [address, isWhoopConnected, selectedDate, fetchSleep]);
+  }, [address, isWhoopConnected, fetchSleep]);
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
@@ -185,37 +175,65 @@ export default function SleepToEarnApp() {
           )}
 
           {address && isWhoopConnected && (
-            <div className="space-y-3">
-              <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-3 flex items-center justify-between">
-                <label className="text-sm text-[var(--ock-text-foreground-muted)]">Date</label>
-                <input
-                  type="date"
-                  className="text-white rounded-md border border-[var(--app-card-border)] bg-transparent px-2 py-1 text-sm"
-                  value={selectedDate}
-                  onChange={(ev) => setSelectedDate(ev.target.value)}
-                />
+            <div className="space-y-4">
+              {/* Tab Navigation */}
+              <div className="flex space-x-2 bg-[var(--ock-bg-alternate)] p-1 rounded-lg">
+                <button
+                  onClick={() => setActiveTab('sleep')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'sleep'
+                      ? 'bg-[var(--ock-bg-primary)] text-[var(--ock-text-primary-inverse)]'
+                      : 'text-[var(--ock-text-foreground-muted)] hover:text-[var(--ock-text-foreground)]'
+                  }`}
+                >
+                  💤 Sleep
+                </button>
+                <button
+                  onClick={() => setActiveTab('rewards')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'rewards'
+                      ? 'bg-[var(--ock-bg-primary)] text-[var(--ock-text-primary-inverse)]'
+                      : 'text-[var(--ock-text-foreground-muted)] hover:text-[var(--ock-text-foreground)]'
+                  }`}
+                >
+                  🪙 Rewards
+                </button>
+                <button
+                  onClick={() => setActiveTab('leaderboard')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'leaderboard'
+                      ? 'bg-[var(--ock-bg-primary)] text-[var(--ock-text-primary-inverse)]'
+                      : 'text-[var(--ock-text-foreground-muted)] hover:text-[var(--ock-text-foreground)]'
+                  }`}
+                >
+                  🏆 Leaderboard
+                </button>
               </div>
-              <div>
-                {sleepLoading ? (
-                  <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-4 animate-pulse text-sm">Loading sleep…</div>
-                ) : sleepError ? (
-                  <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-4 text-sm text-[var(--ock-text-error)]">{sleepError}</div>
-                ) : sleepData ? (
-                  <SleepCard data={sleepData} />
-                ) : (
-                  <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-4 text-sm text-[var(--ock-text-foreground-muted)]">No sleep found for selected date yet.</div>
-                )}
-              </div>
+
+              {/* Tab Content */}
+              {activeTab === 'sleep' && (
+                <div className="space-y-3">
+                  <div>
+                    {sleepLoading ? (
+                      <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-4 animate-pulse text-sm">Loading sleep…</div>
+                    ) : sleepError ? (
+                      <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-4 text-sm text-[var(--ock-text-error)]">{sleepError}</div>
+                    ) : sleepData ? (
+                      <SleepCard data={sleepData} />
+                    ) : (
+                      <div className="rounded-xl border border-[var(--app-card-border)] bg-[var(--app-card-bg)] p-4 text-sm text-[var(--ock-text-foreground-muted)]">No sleep found for selected date yet.</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'rewards' && <RewardsCard />}
+              
+              {activeTab === 'leaderboard' && <Leaderboard />}
             </div>
           )}
 
-          <button
-            className="w-full rounded-xl p-3 disabled:bg-gray-400 bg-[var(--ock-bg-primary)] text-[var(--ock-text-inverse)]"
-            onClick={handleClaim}
-            disabled={isLoading}
-          >
-            Claim Reward
-          </button>
+
 
           <button
             className="w-full text-xs text-[var(--ock-text-foreground-muted)]"

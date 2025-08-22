@@ -40,6 +40,12 @@ let WhoopController = class WhoopController {
     async getUser(walletAddress) {
         return this.service.getUser(walletAddress);
     }
+    async getUserSleep(walletAddress) {
+        return this.service.getUserSleep(walletAddress);
+    }
+    async getUserStats(walletAddress) {
+        return this.service.getUserBlockchainStats(walletAddress);
+    }
 };
 exports.WhoopController = WhoopController;
 __decorate([
@@ -67,6 +73,20 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], WhoopController.prototype, "getUser", null);
+__decorate([
+    (0, common_1.Get)('sleep/:walletAddress'),
+    __param(0, (0, common_1.Param)('walletAddress')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WhoopController.prototype, "getUserSleep", null);
+__decorate([
+    (0, common_1.Get)('stats/:walletAddress'),
+    __param(0, (0, common_1.Param)('walletAddress')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WhoopController.prototype, "getUserStats", null);
 exports.WhoopController = WhoopController = __decorate([
     (0, common_1.Controller)('api/whoop'),
     __metadata("design:paramtypes", [whoop_service_1.WhoopService])

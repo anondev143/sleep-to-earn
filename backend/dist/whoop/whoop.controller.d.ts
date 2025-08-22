@@ -28,5 +28,14 @@ export declare class WhoopController {
         refreshToken: string | null;
         accessTokenExpiresAt: Date | null;
     }>;
+    getUserSleep(walletAddress: string): Promise<import("@prisma/client/runtime/library").JsonValue | undefined>;
+    getUserStats(walletAddress: string): Promise<{
+        tokenBalance: number;
+        totalTokensEarned: number;
+        currentStreak: number;
+        longestStreak: number;
+        totalSessions: number;
+        isBlockchainEnabled: boolean;
+    }>;
 }
 export {};

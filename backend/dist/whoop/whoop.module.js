@@ -10,11 +10,13 @@ exports.WhoopModule = void 0;
 const common_1 = require("@nestjs/common");
 const whoop_controller_1 = require("./whoop.controller");
 const whoop_service_1 = require("./whoop.service");
+const blockchain_module_1 = require("../blockchain/blockchain.module");
 let WhoopModule = class WhoopModule {
 };
 exports.WhoopModule = WhoopModule;
 exports.WhoopModule = WhoopModule = __decorate([
     (0, common_1.Module)({
+        imports: [blockchain_module_1.BlockchainModule],
         controllers: [whoop_controller_1.WhoopController],
         providers: [whoop_service_1.WhoopService],
     })

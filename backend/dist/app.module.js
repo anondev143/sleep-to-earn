@@ -11,6 +11,8 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const prisma_module_1 = require("./prisma/prisma.module");
 const whoop_module_1 = require("./whoop/whoop.module");
+const blockchain_module_1 = require("./blockchain/blockchain.module");
+const leaderboard_module_1 = require("./leaderboard/leaderboard.module");
 const app_controller_1 = require("./app.controller");
 let AppModule = class AppModule {
 };
@@ -21,6 +23,8 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             prisma_module_1.PrismaModule,
             whoop_module_1.WhoopModule,
+            blockchain_module_1.BlockchainModule,
+            leaderboard_module_1.LeaderboardModule,
         ],
         controllers: [app_controller_1.AppController],
     })
