@@ -69,7 +69,9 @@ export default function Leaderboard() {
       
       try {
         // Fetch leaderboard data
-        const leaderboardResponse = await fetch(`/api/leaderboard?limit=10`);
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!backendUrl) return;
+        const leaderboardResponse = await fetch(`${backendUrl}/api/leaderboard?limit=10`);
         if (!leaderboardResponse.ok) {
           throw new Error('Failed to fetch leaderboard');
         }
@@ -78,7 +80,9 @@ export default function Leaderboard() {
 
         // Fetch user rank if wallet is connected
         if (address) {
-          const rankResponse = await fetch(`/api/leaderboard/user/${address}`);
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+          if (!backendUrl) return;
+          const rankResponse = await fetch(`${backendUrl}/api/leaderboard/user/${address}`);
           if (rankResponse.ok) {
             const rankData = await rankResponse.json();
             setUserRank(rankData);

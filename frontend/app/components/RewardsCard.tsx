@@ -46,7 +46,9 @@ export default function RewardsCard() {
       setError(null);
       
       try {
-        const response = await fetch(`/api/whoop/stats/${address}`);
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!backendUrl) return;
+        const response = await fetch(`${backendUrl}/api/whoop/stats/${address}`);
         if (!response.ok) {
           throw new Error('Failed to fetch stats');
         }
