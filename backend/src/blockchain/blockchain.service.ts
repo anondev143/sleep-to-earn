@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createPublicClient, createWalletClient, http, parseAbi } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { sleepToEarnAbi, sleepTokenAbi } from 'src/abis';
+import { sleepToEarnAbi, sleepTokenAbi } from '../abi';
 
 @Injectable()
 export class BlockchainService {
