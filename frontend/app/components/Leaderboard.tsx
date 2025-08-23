@@ -20,6 +20,7 @@ type LeaderboardData = {
 type UserRank = {
   rank: number | null;
   totalUsers: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userStats: any;
 };
 
