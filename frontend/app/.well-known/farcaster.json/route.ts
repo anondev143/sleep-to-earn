@@ -1,3 +1,4 @@
+
 function withValidProperties(
   properties: Record<string, undefined | string | string[]>,
 ) {
@@ -39,5 +40,8 @@ export async function GET() {
       ogDescription: process.env.NEXT_PUBLIC_APP_OG_DESCRIPTION,
       ogImageUrl: process.env.NEXT_PUBLIC_APP_OG_IMAGE,
     }),
+    baseBuilder: {
+      "allowedAddresses": ["0x07399305eBb4E7B3b32Fc5aB6eF393266FE1191c"]
+    },
   });
 }
